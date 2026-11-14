@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* VYRAQ floating animation */
+@keyframes vyraq-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* Reusable animation class */
+.animate-vyraq-float {
+    animation: vyraq-float 4s ease-in-out infinite;
+}
+
+/* Animation delays */
+.float-delay-1 {
+    animation-delay: 0.8s;
+}
+
+.float-delay-2 {
+    animation-delay: 1.6s;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .animate-vyraq-float {
+        animation: none;
+    }
+}
