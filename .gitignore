@@ -27,3 +27,6 @@ frontend/dist/
 *.log
 .vscode/
 .DS_Store
+
+
+/.sf/

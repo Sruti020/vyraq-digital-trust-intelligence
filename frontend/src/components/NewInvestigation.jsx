@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import API from "../services/api";
 import {
     FileText,
     Image,
@@ -12,6 +12,69 @@ function NewInvestigation() {
     const [contentType, setContentType] = useState("text");
     const [claim, setClaim] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
+
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
+
+    const handleTextSubmit = async () => {
+        setLoading(true);
+        setMessage("");
+        setError("");
+
+        try {
+            const response = await API.post("investigations/", {
+                content_type: "text",
+                submitted_text: claim,
+            });
+
+            setMessage(
+                `Investigation #${response.data.id} submitted successfully!`
+            );
+
+            setClaim("");
+
+        } catch (err) {
+            setError(
+                err.response?.data?.submitted_text?.[0] ||
+                "Unable to submit investigation. Please try again."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleImageSubmit = async () => {
+        setLoading(true);
+        setMessage("");
+        setError("");
+
+        try {
+            const formData = new FormData();
+
+            formData.append("content_type", "image");
+            formData.append("image", selectedFile);
+
+            const response = await API.post(
+                "investigations/",
+                formData
+            );
+
+            setMessage(
+                `Investigation #${response.data.id} submitted successfully!`
+            );
+
+            setSelectedFile(null);
+
+        } catch (err) {
+            setError(
+                err.response?.data?.image?.[0] ||
+                "Unable to upload image. Please try again."
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="new-investigation">
@@ -72,10 +135,19 @@ function NewInvestigation() {
 
                     <button
                         className="analyze-btn"
-                        disabled={!claim.trim()}
+                        onClick={handleTextSubmit}
+                        disabled={!claim.trim() || loading}
                     >
-                        Begin Analysis <ArrowRight size={18} />
+                        {loading ? "Submitting..." : "Begin Analysis"}
+                        {!loading && <ArrowRight size={18} />}
                     </button>
+                    {message && (
+                            <p className="success-message">{message}</p>
+                        )}
+
+                        {error && (
+                            <p className="error-message">{error}</p>
+                        )}
                 </div>
             )}
 
@@ -104,10 +176,19 @@ function NewInvestigation() {
 
                     <button
                         className="analyze-btn"
-                        disabled={!selectedFile}
+                        onClick={handleImageSubmit}
+                        disabled={!selectedFile || loading}
                     >
-                        Begin Analysis <ArrowRight size={18} />
+                        {loading ? "Uploading..." : "Begin Analysis"}
+                        {!loading && <ArrowRight size={18} />}
                     </button>
+                    {message && (
+                        <p className="success-message">{message}</p>
+                    )}
+
+                    {error && (
+                        <p className="error-message">{error}</p>
+                    )}
                 </div>
             )}
 
